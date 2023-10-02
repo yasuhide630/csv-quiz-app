@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Quiz App</title>
+    <style>
+        #quiz-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>CSV Quiz App</h2>
+        <input type="file" id="upload-csv">
+        <div id="quiz-container">
+            <p id="question"></p>
+            <div id="options"></div>
+            <button onclick="submitAnswer()">回答する</button>
+            <p id="explanation"></p>
+            <button onclick="previousQuestion()">前の問題に戻る</button>
+            <button onclick="nextQuestion()">次の問題に進む</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
