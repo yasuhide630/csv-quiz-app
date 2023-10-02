@@ -1,76 +1,83 @@
 let questions = [];
-let currentIndex = 0;
+let currentQuestionIndex = 0;
 
-function createQuiz() {
-    let file = document.getElementById('upload-csv').files[0];
-    if (!file) {
-        alert("CSVファイルを選択してください。");
-        return;
-    }
-
-    let reader = new FileReader();
-    reader.onload = function(event) {
-        parseCSV(event.target.result);
-        displayQuestion(0);
-        document.getElementById('quiz-container').style.display = 'block';
-    };
-    reader.readAsText(file);
-}
-
-function parseCSV(csv) {
-    let lines = csv.trim().split("\n");
-    questions = lines.map(line => {
-        let columns = parseCSVLine(line);
-        return {
-            question: columns[0],
-            options: columns[1].split("\n"),
-            answer: columns[2],
-            explanation: columns[3]
+document.getElementById('createQuizBtn').addEventListener('click', function() {
+    const fileInput = document.getElementById('csvFileInput');
+    const file = fileInput.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const csvData = event.target.result;
+            questions = parseCSVData(csvData);
+            displayQuestion(0);
+            document.getElementById('quizContainer').style.display = 'block';
         };
-    });
-}
+        reader.readAsText(file);
+    }
+});
 
+document.getElementById('submitAnswerBtn').addEventListener('click', function() {
+    const question = questions[currentQuestionIndex];
+    const choicesElement = document.getElementById('choices');
+    const inputs = choicesElement.querySelectorAll('input[type="checkbox"]');
+    let selectedAnswers = [];
+    for (let i = 0; i < inputs.length; i++) {
+        if (inputs[i].checked) {
+            selectedAnswers.push(i.toString());
+        }
+    }
+    if (selectedAnswers.join(',') === question.answer) {
+        alert('正解！');
+        document.getElementById('explanation').textContent = question.explanation;
+    } else {
+        alert('不正解！');
+        document.getElementById('explanation').textContent = question.explanation;
+    }
+});
 
+document.getElementById('prevQuestionBtn').addEventListener('click', function() {
+    if (currentQuestionIndex > 0) {
+        displayQuestion(currentQuestionIndex - 1);
+    }
+});
+
+document.getElementById('nextQuestionBtn').addEventListener('click', function() {
+    if (currentQuestionIndex < questions.length - 1) {
+        displayQuestion(currentQuestionIndex + 1);
+    }
+});
+
+function parseCSVData(data) {
+    const lines = data.trim().split('\n');
+    const questions = [];
+    
+    for (const line of lines) {
+        const [questionText, choiceText, answer, explanation] = line.split(',');
+        const choices = choiceText.split('\n');
+        questions.push({ questionText, choices, answer, explanation });
+    }
+    
+    return questions;
 }
 
 function displayQuestion(index) {
-    if (index < 0 || index >= questions.length) return;
-
-    let questionObj = questions[index];
-    document.getElementById('question').innerText = questionObj.question;
-    let optionsDiv = document.getElementById('options');
-    optionsDiv.innerHTML = "";
-    questionObj.options.forEach((option, i) => {
-        let radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.name = 'option';
-        radio.value = String.fromCharCode(65 + i);
-        let label = document.createElement('label');
-        label.innerHTML = `${String.fromCharCode(65 + i)}. ${option}`;
-        optionsDiv.appendChild(radio);
-        optionsDiv.appendChild(label);
-        optionsDiv.appendChild(document.createElement('br'));
-    });
-    document.getElementById('explanation').innerText = '';
-}
-
-function submitAnswer() {
-    let selectedOption = document.querySelector('input[name="option"]:checked');
-    if (!selectedOption) return;
-
-    if (selectedOption.value === questions[currentIndex].answer) {
-        document.getElementById('explanation').innerText = "正解! " + questions[currentIndex].explanation;
-    } else {
-        document.getElementById('explanation').innerText = "不正解... " + questions[currentIndex].explanation;
+    const question = questions[index];
+    const questionElement = document.getElementById('question');
+    const choicesElement = document.getElementById('choices');
+    
+    questionElement.textContent = question.questionText;
+    choicesElement.innerHTML = '';
+    for (let i = 0; i < question.choices.length; i++) {
+        const choice = question.choices[i];
+        const label = document.createElement('label');
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = i;
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(choice));
+        choicesElement.appendChild(label);
+        choicesElement.appendChild(document.createElement('br'));
     }
-}
-
-function previousQuestion() {
-    currentIndex--;
-    displayQuestion(currentIndex);
-}
-
-function nextQuestion() {
-    currentIndex++;
-    displayQuestion(currentIndex);
+    
+    currentQuestionIndex = index;
 }
