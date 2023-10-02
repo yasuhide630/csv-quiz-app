@@ -1,8 +1,13 @@
 let questions = [];
 let currentIndex = 0;
 
-document.getElementById('upload-csv').addEventListener('change', function(e) {
-    let file = e.target.files[0];
+function createQuiz() {
+    let file = document.getElementById('upload-csv').files[0];
+    if (!file) {
+        alert("CSVファイルを選択してください。");
+        return;
+    }
+
     let reader = new FileReader();
     reader.onload = function(event) {
         parseCSV(event.target.result);
@@ -10,7 +15,7 @@ document.getElementById('upload-csv').addEventListener('change', function(e) {
         document.getElementById('quiz-container').style.display = 'block';
     };
     reader.readAsText(file);
-});
+}
 
 function parseCSV(csv) {
     let lines = csv.trim().split("\n");
