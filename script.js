@@ -20,14 +20,15 @@ function createQuiz() {
 function parseCSV(csv) {
     let lines = csv.trim().split("\n");
     questions = lines.map(line => {
-        let columns = line.split(",");
-        return {
-            question: columns[0],
-            options: columns[1].split("\n"),
-            answer: columns[2],
-            explanation: columns[3]
-        };
-    });
+    let columns = line.split(",");
+    return {
+        question: columns[0] || "",
+        options: (columns[1] || "").split("\n"),
+        answer: columns[2] || "",
+        explanation: columns[3] || ""
+    };
+});
+
 }
 
 function displayQuestion(index) {
